@@ -1,5 +1,5 @@
 // Define the base directory where your images are located
-var baseDirectory = "/Set images/";
+var baseDirectory = "./Set images/";
 
 // Array to keep track of downloaded images
 var downloadedImages = [];

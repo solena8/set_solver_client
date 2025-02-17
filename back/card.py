@@ -8,9 +8,7 @@ class Card:
     color: str
     filling: str
 
-    def to_str(self) -> str:
+    def __str__(self):
         return f"{self.number}{self.shape}{self.color}{self.filling}"
 
-    def __repr__(self) -> str:
-        return self.to_str()
-
+# @ToDo : faire des enums au lieu de str pour les attributs
