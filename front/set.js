@@ -1,183 +1,212 @@
-// Define the base directory where your images are located
-var baseDirectory = "./Set images/";
+// Define the base directory where images are located
+let baseDirectory = "set_images/";
 
 // Array to keep track of downloaded images
-var downloadedImages = [];
+let downloadedImages = [];
+
+// Define the order of form navigation
+const formGroups = ["selected-number", "selected-shape", "selected-color", "selected-filling"];
+let currentGroupIndex = 0;
+
+// Initialize keyboard navigation when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Select first radio button of first group
+    const firstRadio = document.querySelector(`input[name="${formGroups[0]}"]`);
+    if (firstRadio) {
+        firstRadio.checked = true;
+        firstRadio.focus();
+    }
+
+    // Add keyboard event listener
+    document.addEventListener('keydown', handleKeyboardNavigation);
+});
+
+// Handle keyboard navigation through radio buttons
+function handleKeyboardNavigation(e) {
+    const currentGroup = formGroups[currentGroupIndex];
+    const radioButtons = document.getElementsByName(currentGroup);
+    let currentRadio = Array.from(radioButtons).findIndex(radio => radio.checked);
+
+    switch(e.key) {
+        case 'ArrowDown':
+        case 'ArrowRight':
+            e.preventDefault();
+            if (currentRadio < radioButtons.length - 1) {
+                radioButtons[currentRadio + 1].checked = true;
+                radioButtons[currentRadio + 1].focus();
+            }
+            break;
+
+        case 'ArrowUp':
+        case 'ArrowLeft':
+            e.preventDefault();
+            if (currentRadio > 0) {
+                radioButtons[currentRadio - 1].checked = true;
+                radioButtons[currentRadio - 1].focus();
+            }
+            break;
+
+        case 'Enter':
+            e.preventDefault();
+            if (currentGroupIndex < formGroups.length - 1) {
+                // Move to next group
+                currentGroupIndex++;
+                const nextRadio = document.querySelector(`input[name="${formGroups[currentGroupIndex]}"]`);
+                if (nextRadio) {
+                    nextRadio.checked = true;
+                    nextRadio.focus();
+                }
+            } else {
+                // If all groups are selected, show the image
+                showImage();
+                // Reset to first group
+                currentGroupIndex = 0;
+                const firstRadio = document.querySelector(`input[name="${formGroups[0]}"]`);
+                if (firstRadio) {
+                    firstRadio.checked = true;
+                    firstRadio.focus();
+                }
+            }
+            break;
+    }
+}
 
 // Function to display the selected image
 function showImage() {
-
-    // Check if the maximum number of downloaded images (13) has been reached
-    if (downloadedImages.length >= 13) {
-        alert("You can only download up to 13 cards.");
+    // Check maximum number of cards
+    if (downloadedImages.length >= 15) {
+        alert("You can only download up to 15 cards.");
         return;
     }
-    // Get the selected values of the radio buttons
-    var number = getSelectedValue("selected-number");
-    var shape = getSelectedValue("selected-shape");
-    var color = getSelectedValue("selected-color");
-    var filling = getSelectedValue("selected-filling");
 
-    // Check if any of the values are empty
-    if (number === "" || shape === "" || color === "" || filling === "") {
+    // Get selected values
+    const values = formGroups.map(group => getSelectedValue(group));
+    if (values.includes("")) {
         alert("Please select values for all attributes.");
-        return; // Exit the function early if any value is empty
+        return;
     }
 
-    // Generate the image ID based on the selected values
-    var imageId = number + shape + color + filling;
+    // Generate image ID
+    const imageId = values.join("");
 
-    // Check if the image has already been downloaded
+    // Check for duplicate
     if (downloadedImages.includes(imageId)) {
         alert("This image has already been downloaded.");
         return;
     }
 
-    // Construct the image path
-    var imagePath = baseDirectory + imageId + ".PNG";
-    console.log("Image Path:", imagePath);
-
-    // Create a new Image element
-    var img = new Image();
-    img.src = imagePath;
+    // Create and load image
+    const img = new Image();
+    img.src = baseDirectory + imageId + ".PNG";
     img.alt = "Set card " + imageId;
     img.className = "set-card-images";
 
-    // Add event listener to handle image load
     img.onload = function() {
-        console.log("Image loaded successfully:", img.src);
-        // Append the image to the container when image is loaded
-        var container = document.getElementById("imageContainer");
+        const container = document.getElementById("imageContainer");
+        
+        // Add image
         container.appendChild(img);
 
-        // Create a delete button for the image
-        var deleteButton = document.createElement("button");
+        // Add delete button
+        const deleteButton = document.createElement("button");
         deleteButton.textContent = "X";
         deleteButton.className = "delete-button";
-        deleteButton.onclick = function() {
-            container.removeChild(img); // Remove the image when delete button is clicked
-            container.removeChild(deleteButton); // Remove the delete button
-            // Remove the image ID from the downloaded images array
-            var index = downloadedImages.indexOf(imageId);
-            if (index !== -1) {
-                downloadedImages.splice(index, 1);
-            }
+        deleteButton.onclick = () => {
+            container.removeChild(img);
+            container.removeChild(deleteButton);
+            downloadedImages.splice(downloadedImages.indexOf(imageId), 1);
         };
         container.appendChild(deleteButton);
 
-        // Add the image ID to the downloaded images array
+        // Track downloaded image
         downloadedImages.push(imageId);
     };
 
-    // Add error handling for image loading
-    img.onerror = function() {
-        console.error("Error loading image:", imagePath);
-        alert("Error loading image: " + imagePath);
+    img.onerror = () => {
+        console.error("Error loading image:", img.src);
+        alert("Error loading image: " + img.src);
     };
-
-    // Reset the form
-    resetForm();
 }
 
-// Function to get the selected value of a radio button group
+// Get selected radio button value
 function getSelectedValue(groupName) {
-    var radioButtons = document.getElementsByName(groupName);
-    for (var i = 0; i < radioButtons.length; i++) {
-        if (radioButtons[i].checked) {
-            return radioButtons[i].value;
-        }
-    }
-    return ""; // Return empty string if no radio button is checked
+    const radio = document.querySelector(`input[name="${groupName}"]:checked`);
+    return radio ? radio.value : "";
 }
 
-// Function to reset form
+// Reset form and select first radio button of first group
 function resetForm() {
-    // Uncheck all radio buttons
-    var radioButtons = document.querySelectorAll("input[type='radio']:checked");
-    radioButtons.forEach(function(radioButton) {
-        radioButton.checked = false;
+    currentGroupIndex = 0;
+    formGroups.forEach(groupName => {
+        const firstRadio = document.querySelector(`input[name="${groupName}"]`);
+        if (firstRadio) {
+            firstRadio.checked = true;
+        }
     });
+    // Focus on first group's first radio
+    const firstGroupRadio = document.querySelector(`input[name="${formGroups[0]}"]`);
+    if (firstGroupRadio) {
+        firstGroupRadio.focus();
+    }
+}
+
+function findSet() {
+  if (downloadedImages.length < 3) {
+      alert("Please select at least 3 cards to find a set.");
+      return;
+  }
+
+  const formatCards = downloadedImages.join(",");
+  const apiUrl = `http://127.0.0.1:8000/cards/${formatCards}`;
+
+  fetch(apiUrl)
+      .then(response => {
+          if (!response.ok) {
+              throw new Error("Network response was not ok");
+          }
+          return response.json();
+      })
+      .then(data => {
+          console.log("data:",data);
+  
+          // Handle the response directly
+          showFoundSetImages(data);
+      })
+      .catch(error => {
+          console.error("Error:", error);
+          alert("Error occurred while finding set");
+      });
 }
 
 
 function showFoundSetImages(data) {
-    // Séparer les 3 IDs de cartes récupérés puis construire le chemin de l'image
-    var imagePaths = data.map(function(cardId) {
-        // Construct the image path
-        return baseDirectory + cardId + ".PNG";
-    });
-
-    // Loop through each image path and create an image element for it
-    imagePaths.forEach(function(imagePath) {
-        // Create a new Image element
-        var img = new Image();
-        img.src = imagePath;
-        img.alt = "Set card " + imagePath; // Use imagePath here to ensure unique alt text for each image
-        img.className = "set-card-images";
-
-        // Add event listener to handle image load
-        img.onload = function() {
-            console.log("Image loaded successfully:", img.src);
-        };
-
-        // Add error handling for image loading
-        img.onerror = function() {
-            console.error("Error loading image:", imagePath);
-            alert("Error loading image: " + imagePath);
-        };
-
-        // Append the image element to the document body or another container
-        document.getElementById("resultImages").appendChild(img);
-    });
-}
-
-
-function trouveSet() {
-    const cards = (downloadedImages)
-    //["1ORH","2OVP","3OMV","1ORP"];//
-    console.log(downloadedImages);
-        
-    // Function to format cards array for API URL
-    const formatCards = cards.join(',');
-
-    
-     // Define the API URL
-     const apiUrl = `http://127.0.0.1:8000/cards/${formatCards}`;
-     console.log(apiUrl);
-
-
-    // Make a GET request
-    fetch(apiUrl)
-    .then(response => {
-        if (!response.ok) {
-        throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log(data); // Log the data received from the API
-        // Call the function to display images
-        showFoundSetImages(data);
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
+  const divImages = document.getElementById("resultImages");
+  divImages.innerHTML = "";
+  
+  // Check if data is null, undefined, or empty array
+  if (!data || data === null || (Array.isArray(data) && data.length === 0)) {
+      alert("No valid set found in these cards!");
+      return;
+  }
+  
+  // Create images only if we have valid data
+  data.forEach(cardId => {
+      const img = new Image();
+      img.src = baseDirectory + cardId + ".PNG";
+      img.alt = "Set card " + cardId;
+      img.className = "set-card-images";
+      divImages.appendChild(img);
+  });
 }
 
 
 
-// Function to reset everything
+
+
+// Reset everything and focus on first radio button
 function resetEverything() {
-    // Uncheck all radio buttons
-    var radioButtons = document.querySelectorAll("input[type='radio']:checked");
-    radioButtons.forEach(function(radioButton) {
-        radioButton.checked = false;
-    });
-
-    // Remove all images
-    var container = document.getElementById("imageContainer");
-    container.innerHTML = ""; // This removes all child elements
-
-    // Clear downloaded images array
+    document.getElementById("resultImages").innerHTML = "";
+    document.getElementById("imageContainer").innerHTML = "";
     downloadedImages = [];
+    resetForm();
 }

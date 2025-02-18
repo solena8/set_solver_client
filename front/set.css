@@ -90,3 +90,12 @@ HR{
     padding: 0; /* Remove any padding */
     background-color: rgba(123, 104, 238,); /* Purple color with 98% opacity */
 }
+
+/* Style for focused radio buttons */
+input[type="radio"]:focus + label {
+    color: rgb(241, 45, 140);
+    font-weight: bold;
+    outline: 2px solid rgb(241, 45, 140);
+    border-radius: 4px;
+    padding: 2px;
+}

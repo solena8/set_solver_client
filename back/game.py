@@ -13,15 +13,16 @@ class Game:
     opt_set: Optional[Set]
 
     def __init__(self):
-        self.pile = []
+        self.pile = [
+            Card(number=n, shape=s, color=c, filling=f)
+            for n in ["1", "2", "3"]
+            for s in ["L", "O", "V"]
+            for c in ["V", "M", "R"]
+            for f in ["H", "P", "V"]
+        ]
         self.selection = Selection()
         self.opt_set = None
 
-        for number in ["1", "2", "3"]:
-            for shape in ["L", "O", "V"]:
-                for color in ["V", "M", "R"]:
-                    for filling in ["H", "P", "V"]:
-                        self.pile.append(Card(number=number, shape=shape, color=color, filling=filling))
 
     def len_pile(self) -> int:
         return len(self.pile)
