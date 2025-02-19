@@ -16,7 +16,6 @@ export class EventHandlers {
 
   handleReset() {
     document.getElementById("resultImages").innerHTML = "";
-    document.getElementById("imageContainer").innerHTML = "";
     this.cardManager.reset();
   }
 

@@ -3,7 +3,6 @@ import { CONSTANTS } from "./constants.js";
 export class UIManager {
   constructor(cardManager) {
     this.cardManager = cardManager;
-    this.currentGroupIndex = 0;
     this.initializeContainers();
   }
 
@@ -114,7 +113,6 @@ export class UIManager {
 
   resetEverything() {
     this.resultImagesContainer.innerHTML = "";
-    document.getElementById("imageContainer").innerHTML = "";
     const foundSetContainer = document.getElementById("foundSetContainer");
     foundSetContainer.innerHTML = "";
     document.querySelectorAll(".card-selected").forEach((img) => {
