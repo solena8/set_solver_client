@@ -1,3 +1,4 @@
+import { ApiService } from "./api.js";
 
 export class EventHandlers {
   constructor(cardManager, uiManager) {
@@ -7,8 +8,6 @@ export class EventHandlers {
   }
 
   initializeEventListeners() {
-
-
     document
       .querySelector('button[onclick="resetEverything()"]')
       .addEventListener("click", () => this.handleReset());
@@ -27,15 +26,7 @@ export class EventHandlers {
 
     try {
       const formatCards = this.cardManager.downloadedImages.join(",");
-      const response = await fetch(
-        `http://127.0.0.1:8000/cards/${formatCards}`
-      );
-
-      if (!response.ok) {
-        throw new Error("Erreur réseau");
-      }
-
-      const data = await response.json();
+      const data = await ApiService.findSet(formatCards);
       this.uiManager.showFoundSetImages(data);
     } catch (error) {
       console.error("Erreur:", error);
